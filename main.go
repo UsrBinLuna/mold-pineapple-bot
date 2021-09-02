@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
@@ -12,9 +13,10 @@ import (
 
 // Variables used for command line parameters
 var (
-	Token       string
-	gid         string
-	chname      string
+	Token string
+	gid   string
+	/*chname      []string
+	nchname     string*/
 	ChannelType string
 )
 
@@ -70,6 +72,8 @@ func main() {
 // This function will be called every time a new message is created on any channel
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
+	var msg string = m.Content
+
 	// Ignore all messages created by the bot itself
 	if m.Author.ID == s.State.User.ID {
 		return
@@ -80,9 +84,11 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	} else if m.Content == "m!pong" {
 		s.ChannelMessageSend(m.ChannelID, "Ping!")
 	} else if m.Content == "m!cc" { // create channel thing
+		// not working
+
 		gid = m.GuildID
-		chname = "template"
-		s.GuildChannelCreate(gid, chname, ChannelTypeGuildText)
-		s.ChannelMessageSend(m.ChannelID, "Created channel #"+chname)
+		//chname := m.Content
+		s.GuildChannelCreate(gid, strings.Split(msg, " ")[1], ChannelTypeGuildText)
+		s.ChannelMessageSend(m.ChannelID, "Created channel #"+strings.Fields(msg)[1])
 	}
 }
